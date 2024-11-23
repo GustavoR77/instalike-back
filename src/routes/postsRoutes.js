@@ -1,11 +1,17 @@
 import express from "express";
 import multer from "multer";
+import cors from "cors";
 import {
   listarPosts,
   postarNovoPost,
   uploadImagem,
-  atualizarNovoPost
+  atualizarNovoPost,
 } from "../controllers/postsController.js";
+
+const corsOptions = {
+  origin: "http://localhost:8000",
+  optionsSuccessStatus: 200,
+};
 
 // Configura o armazenamento de arquivos para upload
 const storage = multer.diskStorage({
@@ -22,7 +28,7 @@ const storage = multer.diskStorage({
 // Define a configuração do middleware multer
 // Comente a linha que não se aplica ao seu sistema operacional
 // Windows
-const upload = multer({ dest: "./uploads", storage }); 
+const upload = multer({ dest: "./uploads", storage });
 // Linux ou Mac
 // const upload = multer({ dest: "./uploads"})
 
@@ -30,7 +36,7 @@ const upload = multer({ dest: "./uploads", storage });
 const routes = (app) => {
   // Habilita o parser JSON para processar dados enviados no formato JSON
   app.use(express.json());
-
+  app.use(cors(corsOptions));
   // Rota GET para listar todos os posts (implementada em postsController.js)
   app.get("/posts", listarPosts);
 
@@ -40,7 +46,7 @@ const routes = (app) => {
   // Rota POST para upload de imagem e criação de post (utiliza o middleware multer)
   // O middleware "upload.single('imagem')" processa um único arquivo chamado "imagem"
   app.post("/upload", upload.single("imagem"), uploadImagem);
-  
+
   app.put("/upload/:id", atualizarNovoPost);
 };
 
