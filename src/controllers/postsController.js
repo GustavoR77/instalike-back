@@ -1,5 +1,10 @@
-import { getTodosPosts, criarPost } from "../models/postsModel.js";
 import fs from "fs";
+import {
+  getTodosPosts,
+  criarPost,
+  atualizarPost,
+} from "../models/postsModel.js";
+import gerarDescricaoComGemini from "../services/geminiService.js";
 
 // Importa as funções para obter todos os posts e criar um novo post do módulo postsModel.js
 // Importa o módulo fs para realizar operações com o sistema de arquivos
@@ -48,6 +53,26 @@ export async function uploadImagem(req, res) {
     fs.renameSync(req.file.path, imagemAtualizada);
 
     // Envia o post criado como resposta em formato JSON com o código de status 200 (sucesso)
+    res.status(200).json(postCriado);
+  } catch (erro) {
+    // Caso ocorra um erro, loga a mensagem de erro no console e envia uma resposta com o código de status 500 (erro interno do servidor)
+    console.error(erro.message);
+    res.status(500).json({ Erro: "Falha na requisição" });
+  }
+}
+
+export async function atualizarNovoPost(req, res) {
+  const id = req.params.id;
+  const urlImagem = `http://localhost:3000/${id}.png`;
+  try {
+    const imgBuffer = fs.readFileSync(`uploads/${id}.png`);
+    const descricao = await gerarDescricaoComGemini(imgBuffer);
+    const post = {
+      imgUrl: urlImagem,
+      descricao: descricao,
+      alt: req.body.alt,
+    };
+    const postCriado = await atualizarPost(id, post);
     res.status(200).json(postCriado);
   } catch (erro) {
     // Caso ocorra um erro, loga a mensagem de erro no console e envia uma resposta com o código de status 500 (erro interno do servidor)

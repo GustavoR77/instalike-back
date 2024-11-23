@@ -4,6 +4,7 @@ import {
   listarPosts,
   postarNovoPost,
   uploadImagem,
+  atualizarNovoPost
 } from "../controllers/postsController.js";
 
 // Configura o armazenamento de arquivos para upload
@@ -39,6 +40,8 @@ const routes = (app) => {
   // Rota POST para upload de imagem e criação de post (utiliza o middleware multer)
   // O middleware "upload.single('imagem')" processa um único arquivo chamado "imagem"
   app.post("/upload", upload.single("imagem"), uploadImagem);
+  
+  app.put("/upload/:id", atualizarNovoPost);
 };
 
 export default routes;
